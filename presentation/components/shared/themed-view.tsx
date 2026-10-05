@@ -12,7 +12,7 @@ export const ThemedView = ({ safe, className, style, children, ...props }: Props
     <View
       style={[
         safe && {
-          paddingTop: safeArea.top,
+          paddingTop: safeArea.top + 6,
           paddingHorizontal: 12,
         },
         {

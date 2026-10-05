@@ -26,7 +26,7 @@ const CartScreen = () => {
         </View>
       </View>
       <View className="mt-4">
-        <Link href="/(pos)/(tabs)/cart">
+        <Link href="/(pos)/customers">
           <Text className="text-primary">Agregar cliente</Text>
         </Link>
       </View>
