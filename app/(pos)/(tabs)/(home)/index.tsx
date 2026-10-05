@@ -3,7 +3,7 @@ import { ThemedView } from '@/presentation/components/shared/themed-view';
 
 const HomeScreen = () => {
   return (
-    <ThemedView safe className="bg-card">
+    <ThemedView safe>
       <Text>HomeScreen</Text>
     </ThemedView>
   );

@@ -5,7 +5,6 @@ import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 // import { useCartStore } from '@/presentation/stores/cart.store';
 import { type LucideIcon } from 'lucide-react-native';
-import { THEME } from '@/lib/theme';
 
 interface Props {
   icon: LucideIcon;
@@ -20,12 +19,7 @@ const PosIconTab = ({ color, focused, icon, size, isCart = false }: Props) => {
   // const isEmptyCart = useCartStore((state) => state.isEmpty);
   return (
     <View className="h-full w-12 items-center justify-center">
-      {focused && (
-        <View
-          className="absolute -top-3 h-1 w-12 rounded-b-full"
-          style={{ backgroundColor: THEME['dark'].primary }}
-        />
-      )}
+      {focused && <View className="absolute -top-2 h-1 w-12 rounded-b-full bg-primary" />}
       {/* {isCart && !isEmptyCart() && (
         <View
           className="absolute -top-1 right-0 z-10 h-5 w-5 items-center justify-center bg-primary"
