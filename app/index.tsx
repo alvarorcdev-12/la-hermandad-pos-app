@@ -1,6 +1,15 @@
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import { Link, Stack } from 'expo-router';
 import { MoonStarIcon, StarIcon, SunIcon } from 'lucide-react-native';
@@ -31,29 +40,34 @@ export default function Screen() {
     <>
       <Stack.Screen options={SCREEN_OPTIONS} />
       <View className="flex-1 items-center justify-center gap-8 p-4">
-        <Image source={LOGO[colorScheme ?? 'light']} style={IMAGE_STYLE} resizeMode="contain" />
-        <View className="gap-2 p-4">
-          <Text className="ios:text-foreground font-mono text-sm text-muted-foreground">
-            1. Edit <Text variant="code">app/index.tsx</Text> to get started.
-          </Text>
-          <Text className="ios:text-foreground font-mono text-sm text-muted-foreground">
-            2. Save to see your changes instantly.
-          </Text>
-        </View>
-        <View className="flex-row gap-2">
-          <Link href="https://reactnativereusables.com" asChild>
-            <Button>
-              <Text>Browse the Docs</Text>
+        <Card className="w-full max-w-sm">
+          <CardHeader className="flex-row">
+            <View className="flex-1 gap-1.5">
+              <CardTitle>Subscribe to our newsletter</CardTitle>
+              <CardDescription>Enter your details to receive updates and tips</CardDescription>
+            </View>
+          </CardHeader>
+          <CardContent>
+            <View className="w-full justify-center gap-4">
+              <View className="gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" placeholder="m@example.com" />
+              </View>
+              <View className="gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" placeholder="John Doe" />
+              </View>
+            </View>
+          </CardContent>
+          <CardFooter className="flex-col gap-2">
+            <Button className="w-full">
+              <Text>Subscribe</Text>
             </Button>
-          </Link>
-          <Link href="https://github.com/founded-labs/react-native-reusables" asChild>
-            <Button variant="ghost">
-              <Text>Star the Repo</Text>
-              <Icon as={StarIcon} />
+            <Button variant="outline" className="w-full">
+              <Text>Later</Text>
             </Button>
-          </Link>
-          <Input placeholder="Search..." />
-        </View>
+          </CardFooter>
+        </Card>
       </View>
     </>
   );
