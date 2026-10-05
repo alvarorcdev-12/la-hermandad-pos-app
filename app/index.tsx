@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
+import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { Link, Stack } from 'expo-router';
 import { MoonStarIcon, StarIcon, SunIcon } from 'lucide-react-native';
@@ -51,6 +52,7 @@ export default function Screen() {
               <Icon as={StarIcon} />
             </Button>
           </Link>
+          <Input placeholder="Search..." />
         </View>
       </View>
     </>
