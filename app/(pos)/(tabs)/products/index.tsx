@@ -5,7 +5,7 @@ import { ThemedView } from '@/presentation/components/shared/themed-view';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
-import { ArrowUpDownIcon, ChevronDownIcon, ImageIcon } from 'lucide-react-native';
+import { ArrowUpDownIcon, ChevronDownIcon } from 'lucide-react-native';
 
 const ProductsScreen = () => {
   return (

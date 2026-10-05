@@ -1,8 +1,8 @@
+import { TouchableOpacity, View } from 'react-native';
+
+import { ImageIcon } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { ImageIcon } from 'lucide-react-native';
-
-import { TouchableOpacity, View } from 'react-native';
 
 export const ProductRow = () => {
   return (
