@@ -33,9 +33,9 @@
   .dark:root {
     --background: 0 0% 0%;
     --foreground: 0 0% 92.9%;
-    --card: 0 0% 7.1%;
+    --card: 0 0% 6.1%;
     --card-foreground: 0 0% 92.9%;
-    --popover: 0 0% 7.1%;
+    --popover: 0 0% 6.1%;
     --popover-foreground: 0 0% 92.9%;
     --primary: 228.1 74.1% 46.9%;
     --primary-foreground: 0 0% 98%;

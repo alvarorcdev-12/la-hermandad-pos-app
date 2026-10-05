@@ -30,9 +30,9 @@ export const THEME = {
   dark: {
     background: 'hsl(0 0% 0%)',
     foreground: 'hsl(0 0% 92.9%)',
-    card: 'hsl(0 0% 7.1%)',
+    card: 'hsl(0 0% 6.1%)',
     cardForeground: 'hsl(0 0% 92.9%)',
-    popover: 'hsl(0 0% 7.1%)',
+    popover: 'hsl(0 0% 6.1%)',
     popoverForeground: 'hsl(0 0% 92.9%)',
     primary: 'hsl(228.1 74.1% 46.9%)',
     primaryForeground: 'hsl(0 0% 98%)',
