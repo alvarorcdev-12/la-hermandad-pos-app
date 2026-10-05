@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { ArrowUpDownIcon, ChevronDownIcon } from 'lucide-react-native';
+import { ProductRow } from '@/presentation/components/products/product-row';
 
 const ProductsScreen = () => {
   return (
@@ -21,6 +22,7 @@ const ProductsScreen = () => {
           <Icon as={ChevronDownIcon} size={18} />
         </Button>
       </View>
+      <ProductRow />
     </ThemedView>
   );
 };
