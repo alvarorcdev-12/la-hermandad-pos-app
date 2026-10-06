@@ -55,7 +55,7 @@ export function ActionBottomSheet({ title, children, visible, onClose }: ActionB
               size="icon"
               accessibilityLabel="Cerrar acciones"
               onPress={onClose}>
-              <Icon as={XIcon} size={22} className="text-muted-foreground" />
+              <Icon as={XIcon} size={20} className="text-muted-foreground" />
             </Button>
           </View>
           <ScrollView
