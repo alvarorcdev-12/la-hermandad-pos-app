@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, type TextInput, View } from 'react-native';
+import { router } from 'expo-router';
 
 import { EyeIcon, EyeOffIcon } from 'lucide-react-native';
 import { Button } from '@/components/ui/button';
@@ -8,9 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import { ThemedView } from '@/presentation/components/shared/themed-view';
+import { useAuthStore } from '@/presentation/stores/auth.store';
 
 const LoginScreen = () => {
+  const login = useAuthStore((state) => state.login);
+
   const [isViewPassword, setIsViewPassword] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [loginForm, setLoginForm] = useState({
     email: '',
     password: '',
@@ -18,14 +23,25 @@ const LoginScreen = () => {
 
   const passwordRef = useRef<TextInput>(null);
 
-  const onLogin = () => {
+  const onLogin = async () => {
     const { email, password } = loginForm;
 
     if (!email || !password) {
       return;
     }
 
-    console.log({ email, password });
+    setIsPending(true);
+
+    const isAuthenticated = await login(email, password);
+
+    setIsPending(false);
+
+    if (isAuthenticated) {
+      router.replace('/(pos)/(tabs)/(home)');
+      return;
+    }
+
+    // TODO: Manejo de error
   };
 
   return (
@@ -33,7 +49,7 @@ const LoginScreen = () => {
       <ScrollView>
         <ThemedView className="bg-background px-4">
           <View className="mt-40 flex-1 gap-6">
-            <View className="gap-1">  
+            <View className="gap-1">
               <Text variant="h1" className="text-3xl">
                 Bienvenido de nuevo
               </Text>
