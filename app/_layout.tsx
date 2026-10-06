@@ -7,8 +7,17 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 // import { useColorScheme } from 'nativewind';
 import { colorScheme } from 'nativewind';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 colorScheme.set('dark');
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -20,12 +29,14 @@ export default function RootLayout() {
 
   return (
     // <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
-    <ThemeProvider value={NAV_THEME.dark}>
-      {/* <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} /> */}
-      <StatusBar style={'light'} />
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider value={NAV_THEME.dark}>
+        {/* <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} /> */}
+        <StatusBar style={'light'} />
 
-      <Stack screenOptions={{ headerShown: false }} />
-      <PortalHost />
-    </ThemeProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+        <PortalHost />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
