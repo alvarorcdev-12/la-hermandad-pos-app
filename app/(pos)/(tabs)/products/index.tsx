@@ -18,12 +18,19 @@ const ProductsScreen = () => {
 
   return (
     <ThemedView safe className="bg-card">
-      <Text variant="h1" className="mb-2 text-left text-2xl">
-        Todos los productos
-      </Text>
+      <Button
+        variant="ghost"
+        className="h-auto min-h-11 justify-start gap-2 self-start p-0 active:bg-transparent">
+        <Text variant="h1" className="text-2xl">
+          Todos los productos
+        </Text>
+        <View className="h-6 w-8 items-center justify-center rounded-full bg-secondary">
+          <Icon as={ChevronDownIcon} size={18} />
+        </View>
+      </Button>
       <View className="gap-3">
         {/* <Input placeholder="Buscar" /> */}
-        <DebounceSearchInput onValueChange={setQuery} />
+        <DebounceSearchInput placeholder="Buscar" onValueChange={setQuery} />
         <View className="flex-row items-start">
           <Button variant="secondary">
             <Icon as={ArrowUpDownIcon} size={18} />
