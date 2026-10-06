@@ -10,7 +10,7 @@ export default function Screen() {
   return (
     <>
       {/* <Stack.Screen options={SCREEN_OPTIONS} /> */}
-      <Redirect href="/(pos)/(tabs)/(home)" />
+      <Redirect href="/auth/login" />
     </>
   );
 }
