@@ -7,11 +7,9 @@ import { ThemedView } from '@/presentation/components/shared/themed-view';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 
-import { CartSummary } from '@/presentation/components/cart/cart-summary';
-
 const CartScreen = () => {
   return (
-    <ThemedView safe className="bg-card">
+    <ThemedView safe className="bg-background dark:bg-card">
       <View className="flex-row items-center justify-between">
         <Text variant="h1" className="text-2xl">
           Carrito
@@ -27,7 +25,7 @@ const CartScreen = () => {
       </View>
       <View className="mt-4">
         <Link href="/(pos)/customers">
-          <Text className="text-primary">Agregar cliente</Text>
+          <Text className="text-primary-emphasis">Agregar cliente</Text>
         </Link>
       </View>
 

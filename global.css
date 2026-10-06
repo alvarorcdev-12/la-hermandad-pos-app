@@ -28,14 +28,16 @@
     --chart-3: 228.1 74.1% 46.9%;
     --chart-4: 224.9 61% 38.2%;
     --chart-5: 225.8 59.4% 12.5%;
+    --primary-pressed: 224.9 61.1% 38.3%;
+    --primary-emphasis: 228 74.2% 46.8%;
   }
 
   .dark:root {
     --background: 0 0% 0%;
     --foreground: 0 0% 92.9%;
-    --card: 0 0% 6.1%;
+    --card: 0 0% 3.9%;
     --card-foreground: 0 0% 92.9%;
-    --popover: 0 0% 6.1%;
+    --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 92.9%;
     --primary: 228.1 74.1% 46.9%;
     --primary-foreground: 0 0% 98%;
@@ -55,5 +57,7 @@
     --chart-3: 228.1 74.1% 46.9%;
     --chart-4: 224.3 100% 77.5%;
     --chart-5: 225 100% 92.9%;
+    --primary-pressed: 224.9 61.1% 38.2%;
+    --primary-emphasis: 224.9 100% 77.7%;
   }
 }
