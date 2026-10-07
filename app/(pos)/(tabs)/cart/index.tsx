@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { Link } from 'expo-router';
 
@@ -8,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { CartItemRow } from '@/presentation/components/cart/cart-item-row';
 import { CartSummary } from '@/presentation/components/cart/cart-summary';
+import { PaymentPreview } from '@/presentation/components/payments/payment-preview';
 
 import { useCartStore } from '@/presentation/stores/cart.store';
 
 const CartScreen = () => {
+  const [previewTotal, setPreviewTotal] = useState<number | null>(null);
   const cart = useCartStore((state) => state.cart);
   const selectedCustomer = useCartStore((state) => state.selectedCustomer);
   const clearSelectedCustomer = useCartStore((state) => state.clearSelectedCustomer);
@@ -83,7 +86,15 @@ const CartScreen = () => {
           </Button>
         </View>
       ) : (
-        <CartSummary count={itemCount} subtotal={subtotalPrice} total={totalPrice} />
+        <CartSummary
+          count={itemCount}
+          subtotal={subtotalPrice}
+          total={totalPrice}
+          onCheckout={() => setPreviewTotal(totalPrice)}
+        />
+      )}
+      {previewTotal !== null && (
+        <PaymentPreview total={previewTotal} onClose={() => setPreviewTotal(null)} />
       )}
     </ThemedView>
   );
