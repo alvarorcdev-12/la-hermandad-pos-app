@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { Link } from 'expo-router';
 
 import { EllipsisIcon, Trash2Icon } from 'lucide-react-native';
@@ -6,8 +6,22 @@ import { Text } from '@/components/ui/text';
 import { ThemedView } from '@/presentation/components/shared/themed-view';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
+import { CartItemRow } from '@/presentation/components/cart/cart-item-row';
+import { CartSummary } from '@/presentation/components/cart/cart-summary';
+
+import { useCartStore } from '@/presentation/stores/cart.store';
 
 const CartScreen = () => {
+  const cart = useCartStore((state) => state.cart);
+
+  const isEmptyCart = useCartStore((state) => state.isEmpty);
+  const getSummaryCart = useCartStore((state) => state.getSummaryCart);
+  const updateCartItemQuantity = useCartStore((state) => state.updateCartItemQuantity);
+  const removeCartItem = useCartStore((state) => state.removeCartItem);
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  const { itemCount, subtotalPrice, totalPrice } = getSummaryCart();
+
   return (
     <ThemedView safe className="bg-background dark:bg-card">
       <View className="flex-row items-center justify-between">
@@ -18,7 +32,7 @@ const CartScreen = () => {
           <Button variant="ghost" size="icon">
             <Icon as={EllipsisIcon} size={18} />
           </Button>
-          <Button variant="ghost" size="icon" disabled>
+          <Button variant="ghost" size="icon" disabled={isEmptyCart()} onPress={clearCart}>
             <Icon as={Trash2Icon} size={18} />
           </Button>
         </View>
@@ -29,22 +43,28 @@ const CartScreen = () => {
         </Link>
       </View>
 
-      {/* Si esta vacio el carrito */}
-      <View>
-        <Button size="lg" disabled variant="secondary">
-          <Text className="text-xl font-semibold">Pagar</Text>
-        </Button>
-      </View>
-      {/* Si no estta vacio el carrito */}
-      {/* <CartSummary
-        count={1}
-        subtotal={0}
-        total={0}
+      <FlatList
+        data={cart}
+        keyExtractor={(item) => item.productId}
+        renderItem={({ item }) => (
+          <CartItemRow
+            item={item}
+            onQuantityChange={updateCartItemQuantity}
+            onRemove={removeCartItem}
+          />
+        )}
+        className="mt-5"
+      />
 
-        // processing={processing}
-        // error={cart.status === 'error'}
-        // onCheckout={cart.checkout}
-      /> */}
+      {isEmptyCart() ? (
+        <View className="my-4">
+          <Button size="lg" disabled variant="secondary">
+            <Text className="text-lg font-semibold">Pagar</Text>
+          </Button>
+        </View>
+      ) : (
+        <CartSummary count={itemCount} subtotal={subtotalPrice} total={totalPrice} />
+      )}
     </ThemedView>
   );
 };

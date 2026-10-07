@@ -8,7 +8,17 @@ import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { ActionBottomSheet } from '../shared/action-bottom-sheet';
 
-export const ProductActions = () => {
+import { useCartStore } from '@/presentation/stores/cart.store';
+
+import type { Product } from '@/domain/entities/product.entity';
+
+interface Props {
+  product: Product;
+}
+
+export const ProductActions = ({ product }: Props) => {
+  const addProductToCart = useCartStore((state) => state.addProductToCart);
+
   const [visible, setVisible] = useState(true);
   const [addedCount, setAddedCount] = useState(0);
 
@@ -24,7 +34,12 @@ export const ProductActions = () => {
     //   return;
     // }
 
-    // addProductToCart({ productId: product.id, title: product.title, unitPrice, quantity: 1 });
+    addProductToCart({
+      productId: product.id,
+      title: product.title,
+      unitPrice: Number(product.price),
+      quantity: 1,
+    });
     // setError(false);
     setAddedCount((current) => current + 1);
   };

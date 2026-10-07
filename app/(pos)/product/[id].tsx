@@ -61,7 +61,7 @@ const ProductScreen = () => {
             </View>
           </View>
         </ScrollView>
-        <ProductActions key={product.id} />
+        <ProductActions key={product.id} product={product} />
       </ThemedView>
     </>
   );

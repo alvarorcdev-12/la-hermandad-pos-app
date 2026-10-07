@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 
 import { THEME } from '@/lib/theme';
+import { Formatter } from '@/utils/formatter';
 
 type Props = {
   count: number;
@@ -25,13 +26,13 @@ export function CartSummary({
   onCheckout,
 }: Props) {
   return (
-    <View className="gap-3 border-t border-border px-5 pb-4 pt-2">
+    <View className="gap-3 px-4 pb-4 pt-2">
       <Button variant="ghost" className="justify-between px-0">
         <Text className="text-sm">
           Subtotal · {count} {count === 1 ? 'artículo' : 'artículos'}
         </Text>
         <View className="flex-row items-center">
-          <Text>{subtotal.toFixed(2)}</Text>
+          <Text>{Formatter.currency(subtotal)}</Text>
         </View>
       </Button>
 
@@ -46,8 +47,8 @@ export function CartSummary({
         onPress={onCheckout}
         accessibilityState={{ busy: processing, disabled: !count || processing }}>
         {processing && <ActivityIndicator color={THEME.dark.primaryForeground} />}
-        <Text className="text-xl font-semibold">
-          {processing ? 'Procesando…' : `Pagar ${subtotal.toFixed(2)}`}
+        <Text className="text-lg font-semibold">
+          {processing ? 'Procesando…' : `Pagar ${Formatter.currency(total)}`}
         </Text>
       </Button>
     </View>

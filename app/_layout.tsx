@@ -5,11 +5,11 @@ import { ThemeProvider } from 'expo-router/react-navigation';
 import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-// import { useColorScheme } from 'nativewind';
-import { colorScheme } from 'nativewind';
+import { useColorScheme } from 'nativewind';
+// import { colorScheme } from 'nativewind';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-colorScheme.set('dark');
+// colorScheme.set('dark');
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,14 +25,14 @@ export {
 } from 'expo-router';
 
 export default function RootLayout() {
-  // const { colorScheme } = useColorScheme();
+  const { colorScheme } = useColorScheme();
 
   return (
-    // <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={NAV_THEME.dark}>
-        {/* <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} /> */}
-        <StatusBar style={'light'} />
+      <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
+        {/* <ThemeProvider value={NAV_THEME.dark}> */}
+        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+        {/* <StatusBar style={'light'} /> */}
 
         <Stack screenOptions={{ headerShown: false }} />
         <PortalHost />
