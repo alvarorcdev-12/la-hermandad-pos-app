@@ -1,10 +1,14 @@
 import { create } from 'zustand';
 
+import type { Customer } from '@/domain/entities/customer.entity';
 import type { CartItem } from '@/domain/entities/cart.entity';
 
 interface CartState {
   // Properties
   cart: CartItem[];
+  selectedCustomer: Pick<Customer, 'id' | 'displayName'> | null;
+  setSelectedCustomer: (customer: Pick<Customer, 'id' | 'displayName'>) => void;
+  clearSelectedCustomer: () => void;
 
   // Getters
   isEmpty: () => boolean;
@@ -20,6 +24,9 @@ interface CartState {
 
 export const useCartStore = create<CartState>()((set, get) => ({
   cart: [],
+  selectedCustomer: null,
+  setSelectedCustomer: ({ id, displayName }) => set({ selectedCustomer: { id, displayName } }),
+  clearSelectedCustomer: () => set({ selectedCustomer: null }),
 
   isEmpty: () => {
     const { cart } = get();
@@ -95,6 +102,6 @@ export const useCartStore = create<CartState>()((set, get) => ({
   },
 
   clearCart: () => {
-    set({ cart: [] });
+    set({ cart: [], selectedCustomer: null });
   },
 }));

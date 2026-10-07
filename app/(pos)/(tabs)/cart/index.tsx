@@ -13,6 +13,8 @@ import { useCartStore } from '@/presentation/stores/cart.store';
 
 const CartScreen = () => {
   const cart = useCartStore((state) => state.cart);
+  const selectedCustomer = useCartStore((state) => state.selectedCustomer);
+  const clearSelectedCustomer = useCartStore((state) => state.clearSelectedCustomer);
 
   const isEmptyCart = useCartStore((state) => state.isEmpty);
   const getSummaryCart = useCartStore((state) => state.getSummaryCart);
@@ -32,15 +34,33 @@ const CartScreen = () => {
           <Button variant="ghost" size="icon">
             <Icon as={EllipsisIcon} size={18} />
           </Button>
-          <Button variant="ghost" size="icon" disabled={isEmptyCart()} onPress={clearCart}>
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={isEmptyCart() && !selectedCustomer}
+            onPress={clearCart}>
             <Icon as={Trash2Icon} size={18} />
           </Button>
         </View>
       </View>
       <View className="mt-4">
-        <Link href="/(pos)/customers">
-          <Text className="text-primary-emphasis">Agregar cliente</Text>
-        </Link>
+        {selectedCustomer && (
+          <Text className="text-lg font-semibold">{selectedCustomer.displayName}</Text>
+        )}
+        <View className="flex-row flex-wrap gap-2">
+          <Link href="/(pos)/customers" asChild>
+            <Button variant="ghost" className="min-h-12 px-0">
+              <Text className="text-primary-emphasis">
+                {selectedCustomer ? 'Cambiar cliente' : 'Agregar cliente'}
+              </Text>
+            </Button>
+          </Link>
+          {selectedCustomer && (
+            <Button variant="ghost" className="min-h-12" onPress={clearSelectedCustomer}>
+              <Text>Quitar cliente</Text>
+            </Button>
+          )}
+        </View>
       </View>
 
       <FlatList

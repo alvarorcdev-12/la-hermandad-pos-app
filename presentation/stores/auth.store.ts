@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useCartStore } from './cart.store';
 import { loginAction } from '@/actions/auth/login.action';
 import { checkAuthAction } from '@/actions/auth/check-auth.action';
 
@@ -66,3 +67,14 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     set({ user: null, token: null, authStatus: 'not-authenticated' });
   },
 }));
+
+// La selección pertenece al usuario y la tienda de la sesión actual.
+useAuthStore.subscribe((state, previous) => {
+  if (
+    state.user?.id !== previous.user?.id ||
+    state.user?.storeName !== previous.user?.storeName ||
+    state.authStatus === 'not-authenticated'
+  ) {
+    useCartStore.getState().clearSelectedCustomer();
+  }
+});
