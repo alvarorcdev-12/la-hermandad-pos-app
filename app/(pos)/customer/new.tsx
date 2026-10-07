@@ -104,7 +104,7 @@ const NewCustomer = () => {
             paddingLeft: insets.left,
             paddingRight: insets.right,
           }}>
-          <ThemedView className="px-4 dark:bg-card">
+          <ThemedView className="bg-background px-4 pt-4 dark:bg-card">
             <Text className="mb-4 mt-2 text-2xl font-semibold">Agregar cliente</Text>
             <Text className="mb-2 text-sm text-muted-foreground">Información de contacto</Text>
             <Alert

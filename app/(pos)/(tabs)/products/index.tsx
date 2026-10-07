@@ -17,7 +17,7 @@ const ProductsScreen = () => {
   const { data: products, isLoading } = useProducts({ page: 1, limit: 10, q: query });
 
   return (
-    <ThemedView safe className="bg-card">
+    <ThemedView safe className="bg-background dark:bg-card">
       <Button
         variant="ghost"
         className="h-auto min-h-11 justify-start gap-2 self-start p-0 active:bg-transparent">

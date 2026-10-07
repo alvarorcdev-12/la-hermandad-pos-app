@@ -33,7 +33,7 @@ const CustomersScreen = () => {
   return (
     <>
       <Stack.Screen options={{ title: '' }} />
-      <ThemedView className="bg-background px-4 dark:bg-card">
+      <ThemedView className="bg-background px-4 pt-4 dark:bg-card">
         <View className="mt-2 gap-4">
           <DebounceSearchInput placeholder="Buscar cliente" onValueChange={setQuery} />
           <Button size="lg" variant="secondary" onPress={() => router.push('/(pos)/customer/new')}>

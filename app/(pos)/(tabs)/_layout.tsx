@@ -18,7 +18,8 @@ const TabsLayout = () => {
         tabBarActiveTintColor: THEME[colorScheme ?? 'light'].foreground,
         tabBarLabelPosition: 'below-icon',
         tabBarStyle: {
-          backgroundColor: THEME[colorScheme ?? 'light'].background,
+          // backgroundColor: THEME[colorScheme ?? 'light'].background,
+          backgroundColor: colorScheme === 'light' ? THEME.light.card : THEME.dark.background,
           paddingBottom: insets.bottom + 8,
         },
         tabBarItemStyle: { paddingTop: 3, paddingBottom: 8 },
