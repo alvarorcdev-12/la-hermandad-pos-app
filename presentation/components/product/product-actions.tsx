@@ -66,7 +66,7 @@ export const ProductActions = ({ product }: Props) => {
           <Button size="lg" variant="secondary" onPress={addToCart}>
             <Text>Agregar al carrito</Text>
           </Button>
-          <Button size="lg" variant="secondary" onPress={goToCart}>
+          <Button size="lg" variant="secondary" disabled={addedCount === 0} onPress={goToCart}>
             <Text>Ir al carrito ({`${addedCount} artículos`})</Text>
           </Button>
         </View>

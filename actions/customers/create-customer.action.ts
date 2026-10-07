@@ -1,3 +1,4 @@
+import { customerCreationError } from './customer-error';
 import { laHermandadApi } from '@/infrastructure/api/la-hermandad-api';
 
 import { CustomerMapper } from '@/infrastructure/mappers/customer.mapper';
@@ -32,6 +33,6 @@ export const createCustomerAction = async (
     const { data } = await laHermandadApi.post<CustomerDB>('/customers', payload);
     return CustomerMapper.toEntity(data);
   } catch (error) {
-    throw new Error('No se pudo crear el cliente. Intenta nuevamente.', { cause: error });
+    throw customerCreationError(error);
   }
 };

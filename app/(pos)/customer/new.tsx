@@ -1,3 +1,7 @@
+import { useRef, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert } from '@/components/ui/alert';
+import { CustomerCreationError } from '@/actions/customers/customer-error';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
@@ -17,8 +21,13 @@ import {
 import { useCartStore } from '@/presentation/stores/cart.store';
 
 const NewCustomer = () => {
+  const [alert, setAlert] = useState({ visible: false, message: '' });
+  const scrollRef = useRef<ScrollView>(null);
+  const insets = useSafeAreaInsets();
   const {
     control,
+    setError,
+    clearErrors,
     formState: { errors, isValid },
     handleSubmit,
   } = useForm<CreateCustomerInput>({
@@ -40,7 +49,25 @@ const NewCustomer = () => {
   const handleSave = (data: CreateCustomerInput) => {
     if (mutation.isPending) return;
 
+    setAlert((current) => ({ ...current, visible: false }));
+    clearErrors();
     mutation.mutate(data, {
+      onError: (error) => {
+        if (error instanceof CustomerCreationError) {
+          for (const field of ['firstName', 'lastName', 'email', 'phone'] as const) {
+            const message = error.fieldErrors[field];
+            if (message) setError(field, { type: 'server', message });
+          }
+        }
+        const message =
+          error instanceof CustomerCreationError
+            ? error.message
+            : 'No se pudo crear el cliente. Intenta nuevamente.';
+        if (message) {
+          setAlert({ visible: true, message });
+          scrollRef.current?.scrollTo({ y: 0, animated: false });
+        }
+      },
       onSuccess: (customer) => {
         setSelectedCustomer({ id: customer.id, displayName: customer.displayName });
         router.replace('/(pos)/(tabs)/cart');
@@ -66,16 +93,27 @@ const NewCustomer = () => {
           headerRight: renderSaveButton,
         }}
       />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'height' : undefined}>
-        <ScrollView>
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'height' : undefined}>
+        <ScrollView
+          ref={scrollRef}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            paddingBottom: Math.max(insets.bottom, 16),
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+          }}>
           <ThemedView className="px-4 dark:bg-card">
             <Text className="mb-4 mt-2 text-2xl font-semibold">Agregar cliente</Text>
             <Text className="mb-2 text-sm text-muted-foreground">Información de contacto</Text>
-            {mutation.isError && (
-              <Text accessibilityRole="alert" className="mb-2 text-sm text-destructive">
-                {mutation.error.message}
-              </Text>
-            )}
+            <Alert
+              visible={alert.visible}
+              variant="error"
+              title="No se pudo crear el cliente"
+              message={alert.message}
+              onClose={() => setAlert((current) => ({ ...current, visible: false }))}
+            />
             <View className="gap-2">
               <View className="gap-2">
                 <Label>Nombre</Label>
