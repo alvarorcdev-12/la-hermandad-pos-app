@@ -42,7 +42,7 @@ const TabsLayout = () => {
         name="cart"
         options={{
           title: 'Carrito',
-          tabBarIcon: (props) => <PosIconTab icon={ShoppingCartIcon} {...props} />,
+          tabBarIcon: (props) => <PosIconTab icon={ShoppingCartIcon} isCart {...props} />,
         }}
       />
       <Tabs.Screen

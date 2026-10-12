@@ -89,11 +89,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
 // La selección pertenece al usuario y la tienda de la sesión actual.
 useAuthStore.subscribe((state, previous) => {
-  if (
-    state.user?.id !== previous.user?.id ||
-    state.user?.storeName !== previous.user?.storeName ||
-    state.authStatus === 'not-authenticated'
-  ) {
+  if (state.user?.id !== previous.user?.id || state.authStatus === 'not-authenticated') {
     useCartStore.getState().resetSession();
   }
 });

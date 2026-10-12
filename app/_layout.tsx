@@ -1,6 +1,12 @@
 import '@/global.css';
 
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 import { NAV_THEME } from '@/lib/theme';
+
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false,
+});
 import { ThemeProvider } from 'expo-router/react-navigation';
 import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';

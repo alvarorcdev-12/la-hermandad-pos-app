@@ -32,7 +32,7 @@ export const getProductsPaginationAction = async (options: Options): Promise<Pro
     });
     return ProductMapper.toEntityList(data.results);
   } catch (error) {
-    console.log({ error });
+    console.log(JSON.stringify(error, null, 4));
     throw new Error('Error de obtener productos paginados');
   }
 };
