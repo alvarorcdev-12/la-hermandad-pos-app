@@ -53,7 +53,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   loginPin: async (pin: string) => {
     try {
       const data = await loginPosPinAction(pin);
-      console.log({ data });
 
       await SecureStorageAdapter.setItem('token', data.token);
 

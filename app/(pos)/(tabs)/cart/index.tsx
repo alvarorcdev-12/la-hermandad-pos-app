@@ -13,10 +13,6 @@ import { ScreenState } from '@/presentation/components/shared/screen-state';
 import { ThemedView } from '@/presentation/components/shared/themed-view';
 import { useCartStore } from '@/presentation/stores/cart.store';
 
-/**
- * Pantalla de Carrito de Compras para POS móvil.
- * Basada en la referencia visual: codex/references/screens/cart-screen.jpeg
- */
 const CartScreen = () => {
   const [previewTotal, setPreviewTotal] = useState<number | null>(null);
   const locked = useCartStore((state) => state.locked);
@@ -35,7 +31,6 @@ const CartScreen = () => {
 
   return (
     <ThemedView safe className="flex-1 bg-background">
-      {/* Barra superior: Título 'Carrito', opciones y vaciar carrito - Referencia: cart-screen.jpeg */}
       <View className="flex-row items-center justify-between pb-3 pt-2">
         <Text className="text-3xl font-bold tracking-tight text-foreground">Carrito</Text>
         <View className="flex-row items-center gap-1">
@@ -159,7 +154,6 @@ const CartScreen = () => {
         />
       )}
 
-      {/* Barra de resumen inferior y botón de pago - Referencia: cart-screen.jpeg */}
       {!isEmptyCart() && (
         <CartSummary
           count={itemCount}
