@@ -5,6 +5,7 @@ import { checkAuthAction } from '@/actions/auth/check-auth.action';
 
 import { User } from '@/domain/entities/user.entity';
 import { SecureStorageAdapter } from '@/infrastructure/adapters/secure-storage.adapter';
+import { loginPosPinAction } from '@/actions/auth/login-pos-pin.action';
 
 type AuthStatus = 'authenticated' | 'checking' | 'not-authenticated';
 
@@ -18,6 +19,7 @@ type AuthState = {
 
   // Acciones
   login: (email: string, password: string) => Promise<boolean>;
+  loginPin: (pin: string) => Promise<boolean>;
   checkAuthStatus: () => Promise<boolean>;
   logout: () => Promise<void>;
 };
@@ -35,6 +37,23 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   login: async (email: string, password: string) => {
     try {
       const data = await loginAction(email, password);
+
+      await SecureStorageAdapter.setItem('token', data.token);
+
+      set({ user: data.user, token: data.token, authStatus: 'authenticated' });
+
+      return true;
+    } catch (error) {
+      await SecureStorageAdapter.deleteItem('token');
+
+      set({ user: null, token: null, authStatus: 'not-authenticated' });
+      return false;
+    }
+  },
+  loginPin: async (pin: string) => {
+    try {
+      const data = await loginPosPinAction(pin);
+      console.log({ data });
 
       await SecureStorageAdapter.setItem('token', data.token);
 
