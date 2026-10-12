@@ -19,14 +19,52 @@ interface CartState {
   updateCartItemQuantity: (productId: string, quantity: number) => void;
   removeCartItem: (productId: string) => void;
 
+  locked: boolean;
+  pending: boolean;
+  orderId: string | null;
+  revision: number;
+  beginCheckout: () => boolean;
+  endCheckout: (locked: boolean) => void;
+  attachOrder: (id: string) => void;
+  restoreOrder: (id: string, cart: CartItem[], customer: CartState['selectedCustomer']) => void;
+  finishCheckout: () => void;
+  resetSession: () => void;
+
   clearCart: () => void;
 }
 
 export const useCartStore = create<CartState>()((set, get) => ({
+  locked: false,
+  pending: false,
+  orderId: null,
+  revision: 0,
+  beginCheckout: () => {
+    if (get().pending) return false;
+    set({ pending: true, locked: true });
+    return true;
+  },
+  endCheckout: (locked) => set({ pending: false, locked }),
+  attachOrder: (orderId) => set({ orderId, locked: true }),
+  restoreOrder: (orderId, cart, selectedCustomer) =>
+    set({ orderId, cart, selectedCustomer, locked: true }),
+  finishCheckout: () =>
+    set({
+      cart: [],
+      selectedCustomer: null,
+      orderId: null,
+      locked: false,
+      pending: false,
+      revision: get().revision + 1,
+    }),
+  resetSession: () => get().finishCheckout(),
   cart: [],
   selectedCustomer: null,
-  setSelectedCustomer: ({ id, displayName }) => set({ selectedCustomer: { id, displayName } }),
-  clearSelectedCustomer: () => set({ selectedCustomer: null }),
+  setSelectedCustomer: ({ id, displayName }) => {
+    if (!get().locked) set({ selectedCustomer: { id, displayName } });
+  },
+  clearSelectedCustomer: () => {
+    if (!get().locked) set({ selectedCustomer: null });
+  },
 
   isEmpty: () => {
     const { cart } = get();
@@ -53,6 +91,7 @@ export const useCartStore = create<CartState>()((set, get) => ({
   },
 
   addProductToCart: (cartItem: CartItem) => {
+    if (get().locked) return;
     const { cart } = get();
 
     const productInCart = cart.some((c) => c.productId === cartItem.productId);
@@ -77,6 +116,7 @@ export const useCartStore = create<CartState>()((set, get) => ({
   },
 
   updateCartItemQuantity: (productId: string, quantity: number) => {
+    if (get().locked) return;
     const { cart } = get();
 
     const updateCart = cart.map((item) => {
@@ -94,6 +134,7 @@ export const useCartStore = create<CartState>()((set, get) => ({
   },
 
   removeCartItem: (productId: string) => {
+    if (get().locked) return;
     const { cart } = get();
 
     const removeItem = cart.filter((item) => item.productId !== productId);
@@ -102,6 +143,6 @@ export const useCartStore = create<CartState>()((set, get) => ({
   },
 
   clearCart: () => {
-    set({ cart: [], selectedCustomer: null });
+    if (!get().locked) get().finishCheckout();
   },
 }));

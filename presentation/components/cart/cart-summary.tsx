@@ -38,7 +38,7 @@ export function CartSummary({
 
       {error && (
         <Text accessibilityRole="alert" className="text-sm text-destructive">
-          No se pudo completar la simulación. Intenta nuevamente.
+          No se pudo completar el cobro. Intenta nuevamente.
         </Text>
       )}
       <Button

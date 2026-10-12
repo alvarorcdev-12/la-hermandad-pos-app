@@ -18,7 +18,7 @@ const laHermandadApi = create({
 laHermandadApi.interceptors.request.use(async (config) => {
   const token = await SecureStorageAdapter.getItem('token');
 
-  if (token) {
+  if (token && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 

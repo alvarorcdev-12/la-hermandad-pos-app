@@ -95,7 +95,7 @@ export function PaymentHistory({ payments }: { payments: PreviewPayment[] }) {
   if (!payments.length) return null;
   return (
     <View className="gap-2 rounded-xl border border-border bg-card p-4">
-      <Text className="text-sm font-semibold">Abonos simulados · {payments.length}</Text>
+      <Text className="text-sm font-semibold">Abonos registrados · {payments.length}</Text>
       {payments.map((payment, index) => (
         <View key={index} className="flex-row flex-wrap justify-between gap-2">
           <Text className="text-sm text-muted-foreground">

@@ -1,4 +1,4 @@
-// Isolated UI simulation: amounts are integer minor units, never persisted.
+// Entrada local. Los abonos y el saldo solo llegan de respuestas confirmadas.
 export type PaymentMethod = 'cash' | 'qr';
 export type PreviewStep =
   'options' | 'entry' | 'cash' | 'qr' | 'unpaid' | 'partial' | 'complete' | 'unpaid-complete';
@@ -11,6 +11,7 @@ export type PreviewState = {
   input: string;
   receivedInput: string;
   payments: PreviewPayment[];
+  remaining?: number;
 };
 export type PreviewAction =
   | { type: 'start'; mode: 'cash' | 'qr' | 'split' }
@@ -18,8 +19,8 @@ export type PreviewAction =
   | { type: 'method'; method: PaymentMethod }
   | { type: 'exact' }
   | { type: 'show-qr' | 'show-cash' }
-  | { type: 'confirm'; index: number }
-  | { type: 'unpaid' | 'confirm-unpaid' | 'back' | 'partial' | 'resume' };
+  | { type: 'sync'; total: number; remaining: number; payments: PreviewPayment[]; unpaid: boolean }
+  | { type: 'unpaid' | 'back' | 'partial' | 'resume' };
 
 export function createPreview(total: number): PreviewState {
   const cents = Math.round(total * 100);
@@ -40,7 +41,10 @@ export function inputAmount(input: string): number {
 }
 
 export function remainingAmount(state: PreviewState): number {
-  return state.total - state.payments.reduce((sum, payment) => sum + payment.amount, 0);
+  return (
+    state.remaining ??
+    state.total - state.payments.reduce((sum, payment) => sum + payment.amount, 0)
+  );
 }
 
 export function cashChange(state: PreviewState): number {
@@ -109,28 +113,26 @@ export function previewReducer(state: PreviewState, action: PreviewAction): Prev
       return state.step === 'entry' && state.method === 'qr' && validEntry(state)
         ? { ...state, step: 'qr' }
         : state;
-    case 'confirm': {
-      // The rendered index also prevents a repeated tap from recording the same installment twice.
-      if (action.index !== state.payments.length || !['entry', 'cash', 'qr'].includes(state.step))
-        return state;
-      if (state.split && state.method === 'cash' && state.step !== 'cash') return state;
-      if (state.method === 'qr' && state.step !== 'qr') return state;
-      if (!(state.step === 'qr' && !state.split) && !validEntry(state)) return state;
-      const amount = state.split ? inputAmount(state.input) : state.total;
-      if (amount <= 0) return state;
-      const payments = [...state.payments, { method: state.method, amount }];
+    case 'sync':
       return {
         ...state,
-        payments,
-        input: '',
-        receivedInput: '',
-        step: amount === remainingAmount(state) ? 'complete' : 'entry',
+        total: action.total,
+        remaining: action.remaining,
+        payments: action.payments,
+        split: action.payments.length > 0 || action.remaining < action.total ? true : state.split,
+        input: action.payments.length > state.payments.length ? '' : state.input,
+        receivedInput: action.payments.length > state.payments.length ? '' : state.receivedInput,
+        step:
+          action.remaining === 0
+            ? 'complete'
+            : action.unpaid
+              ? 'unpaid-complete'
+              : action.payments.length > state.payments.length
+                ? 'entry'
+                : state.step,
       };
-    }
     case 'unpaid':
       return state.step === 'options' ? { ...state, step: 'unpaid' } : state;
-    case 'confirm-unpaid':
-      return state.step === 'unpaid' ? { ...state, step: 'unpaid-complete' } : state;
     case 'partial':
       return state.payments.length && remainingAmount(state) > 0
         ? { ...state, step: 'partial' }

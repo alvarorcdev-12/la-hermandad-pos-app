@@ -15,6 +15,8 @@ import { useCartStore } from '@/presentation/stores/cart.store';
 
 const CartScreen = () => {
   const [previewTotal, setPreviewTotal] = useState<number | null>(null);
+  const locked = useCartStore((state) => state.locked);
+  const orderId = useCartStore((state) => state.orderId);
   const cart = useCartStore((state) => state.cart);
   const selectedCustomer = useCartStore((state) => state.selectedCustomer);
   const clearSelectedCustomer = useCartStore((state) => state.clearSelectedCustomer);
@@ -40,7 +42,7 @@ const CartScreen = () => {
           <Button
             variant="ghost"
             size="icon"
-            disabled={isEmptyCart() && !selectedCustomer}
+            disabled={locked || (isEmptyCart() && !selectedCustomer)}
             onPress={clearCart}>
             <Icon as={Trash2Icon} size={18} />
           </Button>
@@ -52,26 +54,38 @@ const CartScreen = () => {
         )}
         <View className="flex-row flex-wrap gap-2">
           <Link href="/(pos)/customers" asChild>
-            <Button variant="ghost" className="min-h-12 px-0">
+            <Button disabled={locked} variant="ghost" className="min-h-12 px-0">
               <Text className="text-primary-emphasis">
                 {selectedCustomer ? 'Cambiar cliente' : 'Agregar cliente'}
               </Text>
             </Button>
           </Link>
           {selectedCustomer && (
-            <Button variant="ghost" className="min-h-12" onPress={clearSelectedCustomer}>
+            <Button
+              disabled={locked}
+              variant="ghost"
+              className="min-h-12"
+              onPress={clearSelectedCustomer}>
               <Text>Quitar cliente</Text>
             </Button>
           )}
         </View>
       </View>
 
+      {locked && (
+        <Text className="my-3 text-sm text-muted-foreground">
+          {orderId
+            ? `Pedido ${orderId}. Pulsa Pagar para retomar el cobro. Los productos y el cliente están bloqueados.`
+            : 'Creación pendiente de verificación. Pulsa Pagar para revisar el resultado.'}
+        </Text>
+      )}
       <FlatList
         data={cart}
         keyExtractor={(item) => item.productId}
         renderItem={({ item }) => (
           <CartItemRow
             item={item}
+            disabled={locked}
             onQuantityChange={updateCartItemQuantity}
             onRemove={removeCartItem}
           />

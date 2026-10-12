@@ -75,6 +75,6 @@ useAuthStore.subscribe((state, previous) => {
     state.user?.storeName !== previous.user?.storeName ||
     state.authStatus === 'not-authenticated'
   ) {
-    useCartStore.getState().clearSelectedCustomer();
+    useCartStore.getState().resetSession();
   }
 });

@@ -17,6 +17,7 @@ interface Props {
 }
 
 export const ProductActions = ({ product }: Props) => {
+  const locked = useCartStore((state) => state.locked);
   const addProductToCart = useCartStore((state) => state.addProductToCart);
 
   const [visible, setVisible] = useState(true);
@@ -28,6 +29,7 @@ export const ProductActions = ({ product }: Props) => {
   };
 
   const addToCart = () => {
+    if (useCartStore.getState().locked) return;
     // const unitPrice = Number(product.price);
     // if (!Number.isFinite(unitPrice) || unitPrice < 0) {
     //   setError(true);
@@ -63,10 +65,19 @@ export const ProductActions = ({ product }: Props) => {
         visible={visible}
         onClose={() => setVisible(false)}>
         <View className="gap-1">
-          <Button size="lg" variant="secondary" onPress={addToCart}>
+          {locked && (
+            <Text className="text-sm text-muted-foreground">
+              Retoma el pedido registrado en el carrito antes de agregar productos.
+            </Text>
+          )}
+          <Button disabled={locked} size="lg" variant="secondary" onPress={addToCart}>
             <Text>Agregar al carrito</Text>
           </Button>
-          <Button size="lg" variant="secondary" disabled={addedCount === 0} onPress={goToCart}>
+          <Button
+            size="lg"
+            variant="secondary"
+            disabled={!locked && addedCount === 0}
+            onPress={goToCart}>
             <Text>Ir al carrito ({`${addedCount} artículos`})</Text>
           </Button>
         </View>

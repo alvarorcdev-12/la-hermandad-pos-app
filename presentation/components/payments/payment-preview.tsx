@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import { Modal, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
@@ -13,6 +13,9 @@ import {
   QrCodeIcon,
   XIcon,
 } from 'lucide-react-native';
+import { Alert } from '@/components/ui/alert';
+import { useCheckout } from '@/presentation/hooks/payments/use-checkout';
+import { moneyCents } from '@/presentation/hooks/payments/checkout-flow';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
@@ -48,9 +51,24 @@ const options = [
   },
 ] as const;
 
-/** Mounted per session; it has no access to stores, HTTP clients or persistence. */
+/** Conserva la presentación y delega las operaciones remotas a TanStack Query. */
 export function PaymentPreview({ total, onClose }: { total: number; onClose: () => void }) {
-  const [state, dispatch] = useReducer(previewReducer, total, createPreview);
+  const flow = useCheckout();
+  const [state, rawDispatch] = useReducer(previewReducer, total, createPreview);
+  const dispatch: typeof rawDispatch = (action) => {
+    if (!flow.pending) rawDispatch(action);
+  };
+  useEffect(() => {
+    const { order, remaining, payments, savedUnpaid } = flow.checkout;
+    if (order && remaining !== null)
+      rawDispatch({
+        type: 'sync',
+        total: moneyCents(order.totalPrice),
+        remaining,
+        payments,
+        unpaid: savedUnpaid,
+      });
+  }, [flow.checkout]);
   const insets = useSafeAreaInsets();
   const remaining = remainingAmount(state);
   const entered = inputAmount(state.input);
@@ -71,15 +89,31 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
       ? 'El abono no puede superar el saldo pendiente.'
       : null;
 
+  const exit = () => {
+    if (flow.pending) return;
+    flow.finish();
+    onClose();
+  };
   const close = () => {
+    if (flow.pending) return;
     if (paid > 0 && remaining > 0 && state.step !== 'partial') dispatch({ type: 'partial' });
-    else onClose();
+    else exit();
   };
   const back = () => {
-    if (state.step === 'options' || finished) onClose();
+    if (flow.pending) return;
+    if (state.step === 'options' || finished) exit();
     else dispatch({ type: 'back' });
   };
-  const confirm = () => dispatch({ type: 'confirm', index: state.payments.length });
+  const confirm = () => {
+    if (!(state.step === 'qr' && !state.split) && !valid) return;
+    flow.submit({
+      type: 'pay',
+      amount: state.split ? entered : remaining,
+      method: state.method,
+      expectedTotal: state.total,
+      expectedPaymentCount: state.payments.length,
+    });
+  };
   const title =
     state.step === 'options'
       ? 'Opciones de pago'
@@ -88,7 +122,7 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
         : state.step === 'partial'
           ? 'Pago parcial'
           : finished
-            ? 'Resumen de la simulación'
+            ? 'Resumen del pedido'
             : state.split
               ? `Pago ${state.payments.length + 1}`
               : state.method === 'cash'
@@ -124,16 +158,41 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
             <Button
               variant="ghost"
               className="h-12 w-12"
-              accessibilityLabel="Cerrar vista previa de pagos"
+              accessibilityLabel="Cerrar cobro"
               onPress={close}>
               <Icon as={XIcon} size={22} />
             </Button>
           </View>
           <Text className="px-4 pb-2 text-center text-xs text-muted-foreground">
-            Vista previa · sin registro de pagos
+            {flow.checkout.order
+              ? `Pedido ${flow.checkout.order.name} · ${flow.checkout.order.id}`
+              : 'El pedido se guarda al confirmar'}
           </Text>
 
+          <View className="px-4">
+            <Alert
+              visible={!!flow.error}
+              title="No se pudo completar el cobro"
+              message={flow.error}
+              variant="error"
+              onClose={flow.dismissError}
+            />
+            {flow.checkout.uncertain && (
+              <View className="gap-2 pb-3">
+                <Text accessibilityRole="alert">
+                  Resultado pendiente de verificación. No vuelvas a cobrar ni crees otro pedido.
+                </Text>
+                <Button
+                  variant="outline"
+                  disabled={flow.pending}
+                  onPress={() => flow.submit({ type: 'verify' })}>
+                  <Text>{flow.pending ? 'Consultando…' : 'Consultar estado del pedido'}</Text>
+                </Button>
+              </View>
+            )}
+          </View>
           <ScrollView
+            pointerEvents={flow.pending ? 'none' : 'auto'}
             key={state.step}
             bounces={false}
             contentContainerClassName="grow px-5 pb-5"
@@ -184,11 +243,11 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
                     <Text
                       accessibilityRole="alert"
                       className="text-center text-sm text-destructive">
-                      No hay un importe válido para simular el pago.
+                      No hay un importe válido para cobrar.
                     </Text>
                   )}
                   <Text className="pb-2 text-center text-xs text-muted-foreground">
-                    Al salir se descarta la simulación. Tu carrito se conserva.
+                    Tu carrito se conserva hasta confirmar el pedido.
                   </Text>
                 </>
               )}
@@ -223,7 +282,7 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
                         </Text>
                       </View>
                       <View className="flex-row flex-wrap justify-between gap-2 border-t border-border pt-2">
-                        <Text className="text-sm text-muted-foreground">Cambio simulado</Text>
+                        <Text className="text-sm text-muted-foreground">Cambio a entregar</Text>
                         <Text className="font-semibold">{previewMoney(cashChange(state))}</Text>
                       </View>
                     </View>
@@ -255,7 +314,7 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
                     <Text className="text-center text-xs text-muted-foreground">
                       {state.method === 'cash'
                         ? 'En el siguiente paso introduce el efectivo recibido y revisa el cambio.'
-                        : 'En el siguiente paso verás el espacio para el QR de este abono.'}
+                        : 'En el siguiente paso verifica la recepción del QR.'}
                     </Text>
                   )}
                   <PaymentHistory payments={state.payments} />
@@ -278,11 +337,11 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
                     <View
                       className="aspect-square items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-muted p-3"
                       accessible
-                      accessibilityLabel="Espacio reservado para QR. No disponible en esta vista previa.">
+                      accessibilityLabel="QR manual: utiliza el QR de la tienda y verifica la recepción.">
                       <Icon as={ScanLineIcon} size={40} className="text-muted-foreground" />
-                      <Text className="text-center font-semibold">Espacio para QR</Text>
+                      <Text className="text-center font-semibold">QR de la tienda</Text>
                       <Text className="text-center text-sm text-muted-foreground">
-                        Placeholder · no válido para realizar pagos
+                        Utiliza el QR de cobro de la tienda
                       </Text>
                     </View>
                   </View>
@@ -292,7 +351,7 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
                     </Text>
                     <Text className="text-sm leading-6 text-accent-foreground">
                       Verifica la recepción de {previewMoney(state.split ? entered : state.total)}.
-                      Aquí solo simulas ese paso.
+                      Confirma únicamente después de comprobar el ingreso.
                     </Text>
                   </View>
                   <PaymentHistory payments={state.payments} />
@@ -311,26 +370,26 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
                     </View>
                     <Text accessibilityRole="header" className="text-center text-2xl font-bold">
                       {complete
-                        ? 'Pago completo simulado'
+                        ? 'Pedido pagado'
                         : state.step === 'unpaid-complete'
-                          ? 'No pagado · simulado'
+                          ? 'Pedido guardado sin pagar'
                           : state.step === 'partial'
                             ? 'Queda un saldo pendiente'
                             : '¿Dejar el total pendiente?'}
                     </Text>
                     <Text className="text-center leading-6 text-muted-foreground">
                       {complete
-                        ? 'Recorrido completado. No se ha registrado ningún cobro.'
+                        ? 'El servidor confirmó el pago total del pedido.'
                         : state.step === 'unpaid-complete'
-                          ? 'Así se vería una venta sin pago. No se ha guardado ningún cambio.'
+                          ? 'El pedido quedó guardado con el total pendiente.'
                           : state.step === 'partial'
-                            ? 'Puedes seguir con los abonos o descartar la simulación y volver al carrito.'
-                            : 'Esta opción representa una venta sin pago. En esta vista previa solo cambia la pantalla.'}
+                            ? 'Puedes seguir con los abonos o volver al carrito y retomarlos después.'
+                            : 'Se guardará el pedido sin registrar pagos. Los abonos existentes se conservan.'}
                     </Text>
                   </View>
                   <PaymentAmount
                     compact
-                    label={complete ? 'Total simulado' : 'Saldo pendiente'}
+                    label={complete ? 'Total del pedido' : 'Saldo pendiente'}
                     amount={complete ? paid : remaining}
                   />
                   {state.step === 'partial' && (
@@ -344,8 +403,8 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
                   <PaymentHistory payments={state.payments} />
                   <Text className="text-center text-sm leading-6 text-muted-foreground">
                     {state.step === 'partial'
-                      ? 'El carrito real queda intacto. Los abonos de esta vista previa no se guardan para más tarde.'
-                      : 'Al volver, los productos y el cliente del carrito seguirán intactos.'}
+                      ? 'Los abonos están guardados. Retoma este pedido desde Pagar en el carrito durante esta sesión.'
+                      : 'El pedido queda identificado y disponible en Pedidos.'}
                   </Text>
                 </>
               )}
@@ -356,45 +415,50 @@ export function PaymentPreview({ total, onClose }: { total: number; onClose: () 
             <View className="gap-2 border-t border-border bg-background px-5 pt-3">
               {state.step === 'partial' && (
                 <Text className="text-center text-xs text-muted-foreground">
-                  Al salir se descartan los abonos simulados.
+                  El carrito queda bloqueado para conservar este pedido.
                 </Text>
               )}
               <Button
                 className="h-auto min-h-14 py-3"
-                disabled={editingAmount && !valid}
-                accessibilityState={{ disabled: editingAmount && !valid }}
+                disabled={flow.pending || !!flow.checkout.uncertain || (editingAmount && !valid)}
+                accessibilityState={{
+                  busy: flow.pending,
+                  disabled: flow.pending || !!flow.checkout.uncertain || (editingAmount && !valid),
+                }}
                 onPress={() => {
-                  if (finished) onClose();
+                  if (finished) exit();
                   else if (state.step === 'partial') dispatch({ type: 'resume' });
-                  else if (state.step === 'unpaid') dispatch({ type: 'confirm-unpaid' });
+                  else if (state.step === 'unpaid') flow.submit({ type: 'unpaid' });
                   else if (state.step === 'entry' && state.method === 'qr')
                     dispatch({ type: 'show-qr' });
                   else if (state.step === 'entry' && state.split) dispatch({ type: 'show-cash' });
                   else confirm();
                 }}>
                 <Text className="flex-shrink text-center text-base font-semibold">
-                  {finished
-                    ? 'Volver al carrito'
-                    : state.step === 'partial'
-                      ? 'Seguir con los abonos'
-                      : state.step === 'unpaid'
-                        ? 'Confirmar como no pagado'
-                        : state.step === 'qr'
-                          ? 'Confirmar recepción'
-                          : state.method === 'qr'
-                            ? 'Continuar al QR'
-                            : state.split
-                              ? state.step === 'entry'
-                                ? 'Continuar con efectivo'
-                                : 'Confirmar abono'
-                              : 'Confirmar pago'}
+                  {flow.pending
+                    ? 'Guardando…'
+                    : finished
+                      ? 'Volver al carrito'
+                      : state.step === 'partial'
+                        ? 'Seguir con los abonos'
+                        : state.step === 'unpaid'
+                          ? 'Confirmar como no pagado'
+                          : state.step === 'qr'
+                            ? 'Confirmar recepción'
+                            : state.method === 'qr'
+                              ? 'Continuar al QR'
+                              : state.split
+                                ? state.step === 'entry'
+                                  ? 'Continuar con efectivo'
+                                  : 'Confirmar abono'
+                                : 'Confirmar pago'}
                 </Text>
               </Button>
               {!finished && (
                 <Button
                   variant="ghost"
                   className="h-auto min-h-12 py-3"
-                  onPress={state.step === 'partial' ? onClose : back}>
+                  onPress={state.step === 'partial' ? exit : back}>
                   <Text>{state.step === 'partial' ? 'Continuar después' : 'Volver'}</Text>
                 </Button>
               )}
