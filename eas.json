@@ -15,7 +15,8 @@
       },
       "env": {
         "EXPO_PUBLIC_STAGE": "prod",
-        "EXPO_PUBLIC_API_URL": "https://la-hermandad-backend.onrender.com/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://la-hermandad-backend.onrender.com/api/v1",
+        "EXPO_PUBLIC_STORE_ID": "d0d5f088-93a0-4e12-bf8d-4c6aaf5c0c86"
       }
     },
     "production": {
