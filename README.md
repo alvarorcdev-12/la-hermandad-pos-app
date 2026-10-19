@@ -1,73 +1,91 @@
-# Minimal Template
+# La Hermandad POS
 
-This is a [React Native](https://reactnative.dev/) project built with [Expo](https://expo.dev/) and [React Native Reusables](https://reactnativereusables.com).
+Aplicación de punto de venta desarrollada con React Native, Expo y TypeScript. Consume la API del backend de La Hermandad.
 
-It was initialized using the following command, then the `Minimal (Nativewind)` template was selected when prompted:
+## Requisitos previos
 
-```bash
-npx @react-native-reusables/cli@latest init
-```
+- Git, Node.js y pnpm instalados.
+- Backend de La Hermandad en ejecución y accesible desde el dispositivo donde probarás la aplicación.
+- Un emulador de Android, un simulador de iOS (requiere macOS) o un dispositivo físico con una versión de Expo Go compatible con el proyecto.
 
-## Getting Started
+## Pasos para levantar el proyecto
 
-To run the development server:
-
-```bash
-    npm run dev
-    # or
-    yarn dev
-    # or
-    pnpm dev
-    # or
-    bun dev
-```
-
-This will start the Expo Dev Server. Open the app in:
-
-- **iOS**: press `i` to launch in the iOS simulator _(Mac only)_
-- **Android**: press `a` to launch in the Android emulator
-- **Web**: press `w` to run in a browser
-
-You can also scan the QR code using the [Expo Go](https://expo.dev/go) app on your device. This project fully supports running in Expo Go for quick testing on physical devices.
-
-## Adding components
-
-You can add more reusable components using the CLI:
+### 1. Clonar el proyecto
 
 ```bash
-npx react-native-reusables/cli@latest add [...components]
+git clone https://github.com/alvarorcdev-12/la-hermandad-pos-app.git
+cd la-hermandad-pos-app
 ```
 
-> e.g. `npx react-native-reusables/cli@latest add input textarea`
+### 2. Copiar el archivo `.env.example` y renombrar la copia a `.env`
 
-If you don't specify any component names, you'll be prompted to select which components to add interactively. Use the `--all` flag to install all available components at once.
+En Linux o macOS:
 
-## Project Features
+```bash
+cp .env.example .env
+```
 
-- ⚛️ Built with [Expo Router](https://expo.dev/router)
-- 🎨 Styled with [Tailwind CSS](https://tailwindcss.com/) via [Nativewind](https://www.nativewind.dev/)
-- 📦 UI powered by [React Native Reusables](https://github.com/founded-labs/react-native-reusables)
-- 🚀 New Architecture enabled
-- 🔥 Edge to Edge enabled
-- 📱 Runs on iOS, Android, and Web
+En Windows (PowerShell):
 
-## Learn More
+```powershell
+Copy-Item .env.example .env
+```
 
-To dive deeper into the technologies used:
+### 3. Cambiar las variables de entorno
 
-- [React Native Docs](https://reactnative.dev/docs/getting-started)
-- [Expo Docs](https://docs.expo.dev/)
-- [Nativewind Docs](https://www.nativewind.dev/)
-- [React Native Reusables](https://reactnativereusables.com)
+Abre `.env` y ajusta las direcciones según dónde se ejecute tu backend. Por ejemplo, para un backend local en el puerto `3000`, usando el simulador de iOS o el emulador de Android Studio:
 
-## Deploy with EAS
+```dotenv
+EXPO_PUBLIC_STAGE=dev
+EXPO_PUBLIC_API_URL=http://localhost:3000/api/v1
+EXPO_PUBLIC_API_URL_IOS=http://localhost:3000/api/v1
+EXPO_PUBLIC_API_URL_ANDROID=http://10.0.2.2:3000/api/v1
+```
 
-The easiest way to deploy your app is with [Expo Application Services (EAS)](https://expo.dev/eas).
+| Variable | Uso |
+| --- | --- |
+| `EXPO_PUBLIC_STAGE` | Usa `dev` para desarrollo o `prod` para producción. |
+| `EXPO_PUBLIC_API_URL` | URL de la API cuando `EXPO_PUBLIC_STAGE=prod`. |
+| `EXPO_PUBLIC_API_URL_IOS` | URL de la API para iOS en desarrollo. |
+| `EXPO_PUBLIC_API_URL_ANDROID` | URL de la API para Android en desarrollo. La configuración actual también la usa en web. |
 
-- [EAS Build](https://docs.expo.dev/build/introduction/)
-- [EAS Updates](https://docs.expo.dev/eas-update/introduction/)
-- [EAS Submit](https://docs.expo.dev/submit/introduction/)
+Para probar en un dispositivo físico, reemplaza `localhost` o `10.0.2.2` por la IP local de la computadora donde corre el backend, por ejemplo `http://192.168.1.100:3000/api/v1`. Conecta ambos equipos a la misma red y asegúrate de que el backend acepte conexiones desde ella.
 
----
+Si pruebas en web desde la misma computadora que ejecuta el backend, configura `EXPO_PUBLIC_API_URL_ANDROID=http://localhost:3000/api/v1`.
 
-If you enjoy using React Native Reusables, please consider giving it a ⭐ on [GitHub](https://github.com/founded-labs/react-native-reusables). Your support means a lot!
+Ajusta también el puerto y la ruta `/api/v1` si tu backend utiliza otros valores. Las direcciones de `.env.example` son ejemplos y deben reemplazarse por las de tu entorno.
+
+### 4. Instalar las dependencias
+
+Desde la carpeta del proyecto:
+
+```bash
+pnpm install
+```
+
+### 5. Iniciar el proyecto
+
+```bash
+pnpm dev
+```
+
+Este comando inicia el servidor de desarrollo de Expo y limpia su caché.
+
+### 6. Abrir la aplicación
+
+Desde la terminal de Expo:
+
+- Presiona `a` para abrir Android con un emulador configurado.
+- Presiona `i` para abrir el simulador de iOS en macOS.
+- Presiona `w` para abrir la versión web.
+- Para un dispositivo físico, escanea el código QR con Expo Go compatible con el SDK del proyecto.
+
+También puedes iniciar directamente la plataforma que necesitas:
+
+```bash
+pnpm android
+pnpm ios
+pnpm web
+```
+
+Ejecuta solo el comando correspondiente a tu plataforma. Si cambias las variables de entorno, detén el servidor con `Ctrl+C` y vuelve a ejecutar `pnpm dev`.
